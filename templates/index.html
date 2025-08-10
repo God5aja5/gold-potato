@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Hub – Ultra Fast Generation</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -10,7 +10,7 @@
   <div class="main-container">
     <h1>🚀 AI Hub – Ultra Fast Generation</h1>
 
-    <!-- ===== TABS ===== -->
+    <!-- TABS -->
     <div class="tabs">
       <div class="tab active" onclick="switchTab('ultra')">
         Ultra Gen <span class="unlimited-badge">⚡ Instant</span>
@@ -28,50 +28,33 @@
         AI Chatbot <span class="unlimited-badge">💬 Smart Assistant</span>
       </div>
       <div class="tab" onclick="switchTab('sfx')">
-        Text to Sound Effects <span class="unlimited-badge">🔊 4 MP3s</span>
+        Text to Sound Effects <span class="unlimited-badge">🔊 1 MP3</span>
       </div>
     </div>
 
-    <!-- ===== ULTRA GEN ===== -->
+    <!-- ULTRA -->
     <div id="ultra" class="generator-section active">
       <div class="section-title">Ultra Gen ⚡</div>
-
-      <div class="input-group">
-        <textarea id="promptUltra" placeholder="Enter your ultra-realistic prompt (e.g., Professional portrait of a CEO in modern office)"></textarea>
-      </div>
-
+      <textarea id="promptUltra" placeholder="Enter your ultra-realistic prompt (e.g., Professional portrait of a CEO in modern office)"></textarea>
       <button class="btn ultra-btn" onclick="generateUltraGen()">Generate Ultra Image</button>
-
       <div class="loader" id="loaderUltra"></div>
       <div class="progress" id="progressUltra"></div>
-
       <div id="resultUltra" class="result">
         <div class="image-container" id="imageContainerUltra"></div>
-        <button class="btn download-btn" onclick="downloadSingleImage(generatedUltraImage, 'ultra')">
-          Download Ultra Image
-        </button>
+        <button class="btn download-btn" onclick="downloadSingleImage(generatedUltraImage, 1)">Download Ultra Image</button>
         <button class="btn ultra-btn" onclick="resetForm('ultra')">Generate Again</button>
       </div>
     </div>
 
-    <!-- ===== UNCENSORED IMAGE ===== -->
+    <!-- UNCENSORED -->
     <div id="arting" class="generator-section">
       <div class="section-title">Uncensored Image Generator ⚠️</div>
-
-      <div class="input-group">
-        <textarea id="prompt1" placeholder="Enter your image prompt (e.g., A futuristic city at night) - No content restrictions"></textarea>
-      </div>
-
-      <div class="input-group">
-        <label for="imageCount1" style="display:block;margin-bottom:10px;color:#ff6b6b;">Number of Images (Max 5):</label>
-        <input type="number" id="imageCount1" class="number-input" min="1" max="5" value="1">
-      </div>
-
+      <textarea id="prompt1" placeholder="Enter your image prompt – no content restrictions"></textarea>
+      <label for="imageCount1">Number of Images (1-5)</label>
+      <input type="number" id="imageCount1" class="number-input" min="1" max="5" value="1">
       <button class="btn" onclick="generateImages('arting')">Generate Uncensored Images</button>
-
       <div class="loader" id="loader1"></div>
       <div class="progress" id="progress1"></div>
-
       <div id="result1" class="result">
         <div class="image-container" id="imageContainer1"></div>
         <button class="btn download-all-btn" onclick="downloadAllImages('arting')">Download All</button>
@@ -79,24 +62,15 @@
       </div>
     </div>
 
-    <!-- ===== REALISTIC IMAGE ===== -->
+    <!-- REALISTIC -->
     <div id="realistic" class="generator-section">
       <div class="section-title">Realistic Image Generator 🚀</div>
-
-      <div class="input-group">
-        <textarea id="prompt2" placeholder="Enter your realistic image prompt (e.g., A professional portrait of a woman in business attire)"></textarea>
-      </div>
-
-      <div class="input-group">
-        <label for="imageCount2" style="display:block;margin-bottom:10px;color:#e74c3c;">Number of Images (Unlimited – Fast Parallel Generation):</label>
-        <input type="number" id="imageCount2" class="number-input" min="1" max="100" value="1">
-      </div>
-
+      <textarea id="prompt2" placeholder="Enter realistic prompt"></textarea>
+      <label for="imageCount2">Number of Images (1-100)</label>
+      <input type="number" id="imageCount2" class="number-input" min="1" max="100" value="1">
       <button class="btn realistic-btn" onclick="generateImages('realistic')">Generate Realistic Images (Parallel)</button>
-
       <div class="loader" id="loader2"></div>
       <div class="progress" id="progress2"></div>
-
       <div id="result2" class="result">
         <div class="image-container" id="imageContainer2"></div>
         <button class="btn download-all-btn" onclick="downloadAllImages('realistic')">Download All</button>
@@ -104,24 +78,15 @@
       </div>
     </div>
 
-    <!-- ===== TEXT TO VIDEO ===== -->
+    <!-- VIDEO -->
     <div id="video" class="generator-section">
       <div class="section-title">Text to Video Generator 🎬</div>
-
-      <div class="input-group">
-        <textarea id="prompt3" placeholder="Enter your video prompt (e.g., A boy walking in the park, A sunset over mountains)"></textarea>
-      </div>
-
-      <div class="input-group">
-        <label for="videoCount" style="display:block;margin-bottom:10px;color:#8e44ad;">Number of Videos (Unlimited – Multi-threaded Generation):</label>
-        <input type="number" id="videoCount" class="number-input" min="1" max="100" value="1">
-      </div>
-
+      <textarea id="prompt3" placeholder="Enter video prompt"></textarea>
+      <label for="videoCount">Number of Videos (1-100)</label>
+      <input type="number" id="videoCount" class="number-input" min="1" max="100" value="1">
       <button class="btn video-btn" onclick="generateVideos()">Generate Videos (Multi-threaded)</button>
-
       <div class="loader" id="loader3"></div>
       <div class="progress" id="progress3"></div>
-
       <div id="result3" class="result">
         <div class="video-container" id="videoContainer"></div>
         <button class="btn download-all-btn" onclick="downloadAllVideos()">Download All Videos</button>
@@ -129,44 +94,31 @@
       </div>
     </div>
 
-    <!-- ===== CHATBOT ===== -->
+    <!-- CHATBOT (stub) -->
     <div id="chatbot" class="generator-section">
       <div class="section-title">AI Chatbot Assistant 💬</div>
-
       <div class="chat-container">
-        <div class="chat-header">
-          <div>🤖 AI Assistant</div>
-          <small>Ask me anything! I can help with coding, questions, and more.</small>
-        </div>
-
         <div class="chat-messages" id="chatMessages">
           <div class="message bot-message">
-            <div class="message-content">Hello! I'm your AI assistant. How can I help you today? 😊</div>
+            <div class="message-content">Hello! How can I help you today? 😊</div>
           </div>
         </div>
-
-        <div class="chat-input-container">
-          <div class="chat-input-wrapper">
-            <input type="text" id="chatInput" class="chat-input" placeholder="Type your message here..." onkeypress="handleChatKeyPress(event)">
-            <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
-          </div>
+        <div class="chat-input-wrapper">
+          <input type="text" id="chatInput" class="chat-input" placeholder="Type your message…" onkeypress="handleChatKeyPress(event)">
+          <button onclick="sendMessage()">Send</button>
         </div>
       </div>
     </div>
 
-    <!-- ===== SOUND EFFECTS ===== -->
+    <!-- SOUND EFFECTS -->
     <div id="sfx" class="generator-section">
       <div class="section-title">Text to Sound Effects 🔊</div>
-
-      <div class="input-group">
-        <textarea id="promptSFX" placeholder="Describe a sound (e.g., thunder rumble, spooky footsteps)"></textarea>
-      </div>
-
-      <button class="btn" style="background:linear-gradient(45deg,#ff6b6b,#4ecdc4)" onclick="generateSounds()">Generate 4 Sounds</button>
-
+      <textarea id="promptSFX" placeholder="Describe a sound (e.g., thunder rumble, spooky footsteps)"></textarea>
+      <label for="durationSFX" style="display:block;margin-bottom:10px;color:#8e44ad;">Duration (1-10 sec)</label>
+      <input type="number" id="durationSFX" class="number-input" min="1" max="10" value="5">
+      <button class="btn" style="background:linear-gradient(45deg,#ff6b6b,#4ecdc4)" onclick="generateSounds()">Generate 1 Sound</button>
       <div class="loader" id="loaderSFX"></div>
       <div class="progress" id="progressSFX"></div>
-
       <div id="resultSFX" class="result">
         <div id="soundContainer"></div>
         <button class="btn" onclick="resetForm('sfx')">Clear & Again</button>
