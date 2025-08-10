@@ -1,9 +1,12 @@
-let generatedImagesArting = [];
-let generatedImagesRealistic = [];
-let generatedVideos = [];
-let generatedUltraImage = '';
-let chatHistory = [];
+/* ========= GLOBALS ========= */
+let generatedImagesArting   = [];
+let generatedImagesRealistic= [];
+let generatedVideos         = [];
+let generatedUltraImage     = '';
+let generatedAudioUrl       = '';
+let generatedSeed           = '';
 
+/* ========= TAB SWITCH ========= */
 function switchTab(tabName) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.generator-section').forEach(s => s.classList.remove('active'));
@@ -11,16 +14,16 @@ function switchTab(tabName) {
   document.getElementById(tabName).classList.add('active');
 }
 
-/* ========= ULTRA ========= */
+/* ========= ULTRA IMAGE ========= */
 async function generateUltraGen() {
   const prompt = document.getElementById('promptUltra').value.trim();
-  if (!prompt) { alert('Please enter a prompt!'); return; }
+  if (!prompt) { alert('Enter prompt'); return; }
 
-  const loader = document.getElementById('loaderUltra');
+  const loader   = document.getElementById('loaderUltra');
   const progress = document.getElementById('progressUltra');
-  const result = document.getElementById('resultUltra');
-  const btn = event.target;
-  const container = document.getElementById('imageContainerUltra');
+  const result   = document.getElementById('resultUltra');
+  const btn      = event.target;
+  const container= document.getElementById('imageContainerUltra');
 
   loader.style.display = 'block';
   progress.style.display = 'block';
@@ -28,7 +31,7 @@ async function generateUltraGen() {
   btn.disabled = true;
   container.innerHTML = '';
 
-  progress.textContent = 'Processing ultra generation...';
+  progress.textContent = 'Generating ultra image...';
 
   try {
     const res = await fetch('/generate_ultra', {
@@ -39,15 +42,12 @@ async function generateUltraGen() {
     const data = await res.json();
     if (data.imageUrl) {
       generatedUltraImage = data.imageUrl;
-      container.innerHTML = `<img src="${data.imageUrl}" class="generated-image">`;
+      container.innerHTML = `<img src="${data.imageUrl}" alt="Ultra" class="generated-image">`;
       result.style.display = 'block';
-      progress.textContent = 'Ultra image generated!';
-    } else {
-      alert('Failed to generate ultra image.');
-      progress.style.display = 'none';
-    }
-  } catch (e) {
-    alert(e);
+      progress.textContent = 'Done!';
+    } else throw 'fail';
+  } catch {
+    alert('Error');
     progress.style.display = 'none';
   } finally {
     loader.style.display = 'none';
@@ -84,36 +84,24 @@ async function generateImages(type) {
   else generatedImagesRealistic = [];
 
   try {
-    if (type === 'realistic') {
-      const res = await fetch('/generate_realistic_batch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, count })
-      });
-      const data = await res.json();
-      if (data.images) {
-        generatedImagesRealistic = data.images;
-        data.images.forEach((url, i) => addImage(url, i + 1, container));
-        result.style.display = 'block';
-        progress.textContent = `${data.images.length} images ready!`;
-      } else throw 'fail';
-    } else {
-      for (let i = 0; i < count; i++) {
-        progress.textContent = `Generating image ${i + 1}/${count}...`;
-        const res = await fetch('/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt })
-        });
-        const data = await res.json();
-        if (data.imageUrl) {
-          generatedImagesArting.push(data.imageUrl);
-          addImage(data.imageUrl, i + 1, container);
-        }
-      }
+    const endpoint = type === 'realistic' ? '/generate_realistic_batch' : '/generate';
+    const payload  = type === 'realistic' ? { prompt, count } : { prompt };
+
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    const urls = type === 'realistic' ? data.images : [data.imageUrl];
+    if (urls && urls.length) {
+      urls.forEach((url, i) => addImage(url, i + 1, container));
+      if (type === 'realistic') generatedImagesRealistic = urls;
+      else generatedImagesArting = urls;
       result.style.display = 'block';
-      progress.textContent = `${generatedImagesArting.length} images ready!`;
-    }
+      progress.textContent = `${urls.length} image(s) ready!`;
+    } else throw 'fail';
   } catch {
     alert('Error');
     progress.style.display = 'none';
@@ -149,11 +137,11 @@ async function generateVideos() {
       body: JSON.stringify({ prompt, count })
     });
     const data = await res.json();
-    if (data.videos) {
+    if (data.videos && data.videos.length) {
       generatedVideos = data.videos;
       data.videos.forEach((url, i) => addVideo(url, i + 1, container));
       result.style.display = 'block';
-      progress.textContent = `${data.videos.length} videos ready!`;
+      progress.textContent = `${data.videos.length} video(s) ready!`;
     } else throw 'fail';
   } catch {
     alert('Error');
@@ -166,6 +154,12 @@ async function generateVideos() {
 
 /* ========= SOUND EFFECTS ========= */
 async function generateSounds() {
+  let seconds = parseInt(document.getElementById('durationSFX').value) || 5;
+  if (seconds > 10) {
+    alert('Sad 🤡🫵 Limit reached! Maximum allowed is 10 seconds. ');
+    return;
+  }
+  seconds = Math.max(seconds, 1);           // floor to 1
   const text = document.getElementById('promptSFX').value.trim();
   if (!text) { alert('Enter text'); return; }
 
@@ -181,30 +175,27 @@ async function generateSounds() {
   btn.disabled = true;
   container.innerHTML = '';
 
-  progress.textContent = 'Generating 4 sounds...';
+  progress.textContent = 'Generating sound...';
 
   try {
     const res = await fetch('/generate_sounds', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text, duration: seconds })
     });
     const data = await res.json();
-    if (data.sounds) {
-      data.sounds.forEach((url, i) => {
-        const div = document.createElement('div');
-        div.className = 'image-item';
-        div.innerHTML = `
-          <audio controls style="width:100%;margin-bottom:10px;">
-            <source src="${url}" type="audio/mpeg">
-          </audio>
-          <button class="btn download-btn" onclick="downloadSingleSound('${url}', ${i+1})">
-            Download Sound ${i+1}
-          </button>`;
-        container.appendChild(div);
-      });
+    if (data.audioUrl) {
+      generatedAudioUrl = data.audioUrl;
+      generatedSeed     = data.seed;
+      container.innerHTML = `
+        <audio controls style="width:100%;margin-bottom:10px;">
+          <source src="${data.audioUrl}" type="audio/wav">
+        </audio>
+        <p style="color:#4ecdc4;">Seed: ${data.seed}</p>
+        <button class="btn download-btn" onclick="downloadSingleSound('${data.audioUrl}', 1)">
+          Download Sound
+        </button>`;
       result.style.display = 'block';
-      progress.textContent = '✅ All 4 sounds ready!';
     } else throw 'fail';
   } catch {
     alert('Error');
@@ -221,9 +212,7 @@ function addImage(url, idx, container) {
   div.className = 'image-item';
   div.innerHTML = `
     <img src="${url}" class="generated-image">
-    <button class="btn download-btn" onclick="downloadSingleImage('${url}', ${idx})">
-      Download Image ${idx}
-    </button>`;
+    <button class="btn download-btn" onclick="downloadSingleImage('${url}', ${idx})">Download Image ${idx}</button>`;
   container.appendChild(div);
 }
 function addVideo(url, idx, container) {
@@ -233,28 +222,18 @@ function addVideo(url, idx, container) {
     <video controls class="generated-video">
       <source src="${url}" type="video/mp4">
     </video>
-    <button class="btn download-video-btn" onclick="downloadSingleVideo('${url}', ${idx})">
-      Download Video ${idx}
-    </button>`;
+    <button class="btn download-video-btn" onclick="downloadSingleVideo('${url}', ${idx})">Download Video ${idx}</button>`;
   container.appendChild(div);
 }
 function downloadSingleImage(url, idx) {
   const a = document.createElement('a');
-  a.href = url;
-  a.download = `image_${idx}.png`;
-  a.target = '_blank';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  a.href = url; a.download = `image_${idx}.png`; a.target = '_blank';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 function downloadSingleVideo(url, idx) {
   const a = document.createElement('a');
-  a.href = url;
-  a.download = `video_${idx}.mp4`;
-  a.target = '_blank';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  a.href = url; a.download = `video_${idx}.mp4`; a.target = '_blank';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 function downloadAllImages(type) {
   const arr = type === 'arting' ? generatedImagesArting : generatedImagesRealistic;
@@ -272,6 +251,7 @@ function resetForm(type) {
     generatedUltraImage = '';
   } else if (type === 'sfx') {
     document.getElementById('promptSFX').value = '';
+    document.getElementById('durationSFX').value = '5';
     document.getElementById('resultSFX').style.display = 'none';
     document.getElementById('progressSFX').style.display = 'none';
     document.getElementById('soundContainer').innerHTML = '';
@@ -295,11 +275,8 @@ function resetForm(type) {
     else generatedImagesRealistic = [];
   }
 }
-function handleChatKeyPress(e) {
-  if (e.key === 'Enter') sendMessage();
-}
+function handleChatKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
 function sendMessage() {
-  /* chat stub: simply echo */
   const input = document.getElementById('chatInput');
   const msg = input.value.trim();
   if (!msg) return;
