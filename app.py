@@ -23,7 +23,7 @@ def ultra():
 @app.route('/generate_realistic_batch', methods=['POST'])
 def realistic_batch():
     prompt = request.json.get('prompt')
-    count  = request.json.get('count', 1)
+    count = request.json.get('count', 1)
     if not prompt:
         return jsonify({'error': 'Prompt required'}), 400
     urls = generate_realistic_batch(prompt, count)
@@ -32,7 +32,7 @@ def realistic_batch():
 @app.route('/generate_videos_batch', methods=['POST'])
 def video_batch():
     prompt = request.json.get('prompt')
-    count  = request.json.get('count', 1)
+    count = request.json.get('count', 1)
     if not prompt:
         return jsonify({'error': 'Prompt required'}), 400
     urls = generate_videos_batch(prompt, count)
@@ -40,11 +40,13 @@ def video_batch():
 
 @app.route('/generate_sounds', methods=['POST'])
 def sounds():
-    text = request.json.get('text')
+    text    = request.json.get('text')
+    seconds = min(max(request.json.get('duration', 5), 1), 10)
     if not text:
         return jsonify({'error': 'Text required'}), 400
-    urls = generate_sound_effects(text)
-    return jsonify({'sounds': urls})
+    data = generate_sound_effects(text, seconds)
+    if data['url']:
+        return jsonify({'audioUrl': data['url'], 'seed': data['seed']})
+    return jsonify({'error': 'Failed'}), 500
 
-# expose WSGI app for Vercel
-application = app
+application = app  # for Vercel
